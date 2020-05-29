@@ -1,0 +1,62 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "File Manager";
+}
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        var currentPath = 'C:\\ECP Upload';
+        $(document).ready(function () {
+            getFileMessage(currentPath);
+        });
+
+        function getFileMessage(path) {
+            $.ajax({
+                type: 'GET',
+                url: '/FileManager/GetFileMessage',
+                data: { rootPath: path },
+                success: function (result) {
+                    let $tbody = $('#tbody');
+                    $tbody.html('');
+                    $(result.folders).each(function(i, folder) {
+                        $tbody.append('<tr class="folder"><td><img width="20px" src="/img/folder.png"/><span style="margin-left: 10px;">' + folder.name + '<span></td><td>' + folder.dateModified + '</td><td>File Folder</td><td></td></tr>');
+                    });
+
+                    $(result.files).each(function (i, file) {
+                        $tbody.append('<tr class="file"><td>' + file.name + '</td><td>' + file.dateModified + '</td><td>' + file.type + '</td><td>' + file.size + '</td></tr>');
+                    });
+
+                    $('.folder').dblclick(function () {
+                        let name = $(this).find('td:first').text();
+                        currentPath = currentPath + "\\" + name;
+                        getFileMessage(currentPath);
+                    });
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date Modified</th>
+                <th>Type</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</body>
+</html>
+
